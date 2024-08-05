@@ -1,50 +1,91 @@
 // src/components/Login.js
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+import { useDispatch } from 'react-redux';
+import { setUserInfo } from '../store/authActions';
+
+import * as client from "./client";
 
 const Login = () => {
-  const [step, setStep] = useState(1); // 1: Email Input, 2: New User Info, 3: Existing User Password
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [step,  setStep] = useState(1); // 1: Email Input, 2: New User Info, 3: Existing User Password
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState(''); 
   const [isNewUser, setIsNewUser] = useState(false);
   const [isEmailValid, setIsEmailValid] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     setIsEmailValid(validateEmail(email));
   }, [email]);
-
-  const handleEmailSubmit = (e) => {
-    e.preventDefault();
-    // Simulate checking if the email exists
-    const emailExists = checkIfEmailExists(email);
-    if (emailExists) {
-      setIsNewUser(false);
-      setStep(3);
-    } else {
-      setIsNewUser(true);
-      setStep(2);
-    }
-  };
-
-  const handleNewUserSubmit = (e) => {
-    e.preventDefault();
-    // Handle new user registration
-    alert('New user registered');
-  };
-
-  const handleExistingUserSubmit = (e) => {
-    e.preventDefault();
-    // Handle existing user login
-    alert('User logged in');
-  };
 
   const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
   };
 
-  const checkIfEmailExists = (email) => {
-    // Replace with real API call to check if email exists
-    const existingEmails = ['existing@example.com'];
-    return existingEmails.includes(email);
+  const checkIfEmailExists = async (email) => {
+    const token = { "email": email };
+    try {
+      const res = await client.testAccount(token);
+      console.log(res)
+    } catch (error) {
+      if (error.response.status === 404) {
+        return false;
+      }
+      if (error.code === 'NotAuthorizedException') {
+        return true;
+      }
+      throw error;
+    }
+    return true;
+  };
+
+  const handleEmailSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const emailExists = await checkIfEmailExists(email);
+      if (emailExists) {
+        setIsNewUser(false);
+        setStep(3);
+      } else {
+        setIsNewUser(true);
+        setStep(2);
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleNewUserSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    const token = {"email" : email, "password" : password, "fullname" : fullName}
+    try {
+      const res = await client.signupAccount(token);
+      dispatch(setUserInfo({ email, fullName }));
+      console.log(res)
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleExistingUserSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    const token = {"email" : email, "password" : password}
+    try {
+      const res = await client.loginAccount(token);
+      dispatch(setUserInfo({ email, fullName: res.fullName }));
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
@@ -52,11 +93,11 @@ const Login = () => {
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         {step === 1 && (
           <>
-            <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+            <h1 className="text-2xl font-bold mb-6 text-center">Let's get started!</h1>
             <form onSubmit={handleEmailSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
-                  Email
+                <label className="text-[#1F2225A6] text-sm font-bold mb-2" htmlFor="email">
+                  Please confirm your email to continue
                 </label>
                 <input
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -67,6 +108,7 @@ const Login = () => {
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
+              {error && <p className="text-red-500 text-xs italic">{error}</p>}
               <button
                 className={`${
                   isEmailValid ? 'bg-blue-500 hover:bg-blue-700' : 'bg-blue-300'
@@ -82,17 +124,32 @@ const Login = () => {
 
         {step === 2 && (
           <>
-            <h1 className="text-2xl font-bold mb-6 text-center">New User</h1>
+            <h1 className="text-2xl font-bold mb-6 text-center">Sign Up</h1>
             <form onSubmit={handleNewUserSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-                  Username
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="fullName">
+                  Full Name
                 </label>
                 <input
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  id="username"
+                  id="fullName"
                   type="text"
-                  placeholder="Username"
+                  placeholder="Full Name"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                  Email
+                </label>
+                <input
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  id="email"
+                  type="email" // Make sure this is of type 'email' to leverage built-in validations
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="mb-4">
@@ -104,8 +161,11 @@ const Login = () => {
                   id="password"
                   type="password"
                   placeholder="**********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
+              {error && <p className="text-red-500 text-xs italic">{error}</p>}
               <button
                 className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="submit"
@@ -115,6 +175,7 @@ const Login = () => {
             </form>
           </>
         )}
+
 
         {step === 3 && (
           <>
@@ -129,8 +190,11 @@ const Login = () => {
                   id="password"
                   type="password"
                   placeholder="**********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
+              {error && <p className="text-red-500 text-xs italic">{error}</p>}
               <button
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                 type="submit"
