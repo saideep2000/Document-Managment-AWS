@@ -1,7 +1,6 @@
 import React from 'react';
 import Navigation from './Navigation';
 import Myfiles from './Myfiles';
-import { useSelector } from 'react-redux';
 
 const Home = () => {
   // const user = useSelector(state => state.auth);

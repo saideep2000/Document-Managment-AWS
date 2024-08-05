@@ -1,4 +1,3 @@
-// src/store/authReducer.js
 const initialState = {
     email: null,
     fullname: null

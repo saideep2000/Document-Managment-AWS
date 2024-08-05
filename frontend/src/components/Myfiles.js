@@ -27,7 +27,7 @@ const Myfiles = () => {
     const token = {"email" : user.email}
     try {
       const response = await client.getFile(token);
-      setFiles(response); // Assuming the API returns an object with a files array
+      setFiles(response);
     } catch (err) {
       setError('Failed to load files. Please try again.');
     }
@@ -46,17 +46,14 @@ const Myfiles = () => {
         'filename': newFile.name
     };
     try {
-        // Get the pre-signed URL from your server
         const response = await client.addFile(formData);
         const presignedUrl = response.presignedUrl;
 
         console.log(presignedUrl)
 
-        // Upload the file using the pre-signed URL
         const uploadSuccessful = await client.uploadFileToS3(presignedUrl, newFile);
 
         if (uploadSuccessful) {
-            // Update UI or state as needed
             setFiles(prevFiles => [...prevFiles, {
                 fileid: response.fileId,
                 filename: response.filename
@@ -98,7 +95,6 @@ const Myfiles = () => {
     };
     try {
         const response = await client.manipulateFile(token);
-        console.log(response); // Logging the server's response for debugging
         setFiles(files => files.filter(file => file.fileid !== fileid));
     } catch (error) {
         console.error('Delete error:', error);
@@ -131,26 +127,19 @@ const handleDuplicate = async (fileid) => {
       'manipulate': 'duplicate'
   };
   try {
-      // Call the API to duplicate the file
-      const responseData = await client.manipulateFile(token); // Directly use the JSON data
-      
-      // Log the response for debugging
-      console.log(responseData);
+      const responseData = await client.manipulateFile(token);
 
-      // Check if the operation was successful based on your API design (e.g., check a status in responseData)
       if (responseData && responseData.newFileId) {
           // Add the new file information to the state
           setFiles(prevFiles => [...prevFiles, {
-              fileid: responseData.newFileId, // Use the newFileId from the response
-              filename: responseData.message.split(' as ')[1] // Extract the filename from the message
+              fileid: responseData.newFileId,
+              filename: responseData.message.split(' as ')[1]
           }]);
       } else {
-          // Handle errors if the API didn't return success
           setError('Failed to duplicate file. Please try again.');
           console.error('Duplicate error:', responseData);
       }
   } catch (error) {
-      // Handle any errors that occur during the fetch
       console.error('Duplicate error:', error);
       setError('Failed to duplicate file. Please try again.');
   }

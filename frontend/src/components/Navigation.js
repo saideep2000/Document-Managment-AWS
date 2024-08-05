@@ -1,17 +1,17 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';  // Updated import
+import { useNavigate } from 'react-router-dom';
 import { logout } from '../store/authActions';
 
 const Navigation = () => {
   const user = useSelector(state => state.auth);
 
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // Updated for React Router v6
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/'); // Updated navigation method
+    navigate('/');
   };
 
   return (
