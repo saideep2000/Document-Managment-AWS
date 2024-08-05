@@ -1,9 +1,3 @@
-# Settings for the Netlify build environment
-[build]
-  base = "frontend/"
-  publish = "frontend/build"
-  command = "npm run build"
-
 # Redirects all requests to the index.html file
 [[redirects]]
   from = "/*"
