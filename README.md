@@ -1,5 +1,3 @@
-# Document-Managment-AWS
-
 # DocuFlow: Document Management System
 
 **DocuFlow** is a state-of-the-art document management application designed to streamline efficiency and collaboration. Leveraging robust technologies like AWS services and React, DocuFlow provides a responsive and secure environment for managing files with ease.
@@ -11,9 +9,6 @@
 
 ### Secure User Authentication
 - Implements JWT for secure, token-based user authentication to manage sessions and data access securely.
-
-### Advanced File Search
-- Incorporates Elasticsearch, offering powerful search capabilities that allow users to quickly locate files.
 
 ### High Scalability
 - Scales seamlessly with AWS Lambda's serverless architecture, handling increases in data volume effortlessly.
@@ -46,14 +41,50 @@ The user interface is crafted to be intuitive, providing users with easy navigat
 
 To begin using DocuFlow, clone the repository and follow the setup instructions provided in the README file. Ensure your AWS credentials are configured properly to interact with the AWS services used by the application.
 
+## Frontend Setup Guide
+
 ```bash
 git clone https://github.com/saideep2000/Document-Managment-AWS
 cd DocuFlow
+cd frontend
 npm install
 npm start
 ```
+## Backend Setup Guide
 
-## Frontend
+To ensure the DocuFlow application functions correctly, it is essential to properly configure the AWS Lambda functions, Amazon S3 buckets, and Amazon DynamoDB tables. Follow these detailed steps to set up your backend infrastructure:
+
+### AWS Lambda Functions
+1. **Create Lambda Functions**: Ensure all necessary Lambda functions are defined as per your application's requirements.
+2. **Assign Permissions**: Attach appropriate IAM roles to each Lambda function. These roles should have policies granting access to other AWS services like S3 and DynamoDB as needed by your functions.
+3. **Environment Variables**: Set environment variables in your Lambda functions, including the S3 bucket name and DynamoDB table names, to ensure consistency across your application.
+
+### Amazon S3 Bucket Configuration
+1. **Create S3 Bucket**: Ensure that the S3 bucket used for storing files is correctly created.
+2. **Set Bucket Policy**: Apply the necessary bucket policy that aligns with your application's access requirements for file uploads and retrieval.
+3. **Configure CORS**: Set up CORS (Cross-Origin Resource Sharing) on your S3 bucket to allow your web application to interact with the bucket from different domains.
+4. **Verify Bucket Name**: Double-check that the bucket name in your Lambda configuration matches the actual S3 bucket name to avoid connection issues.
+
+### Amazon DynamoDB Setup
+1. **Create DynamoDB Tables**: Set up two tables in DynamoDB:
+   - **User Table**: To store user information.
+   - **User Files Table**: To keep records of user files and metadata.
+2. **Define Primary Keys**: Ensure each table has the appropriate primary keys as required by your Lambda functions for efficient data access.
+3. **Update Lambda Configuration**: Verify that the table names in your Lambda functions match the names used during table creation.
+
+### Validation Steps
+- After setting up your backend infrastructure, perform tests to validate that your Lambda functions can access S3 and DynamoDB resources without permissions issues.
+- Check the Lambda function logs in CloudWatch to troubleshoot and resolve any errors related to permissions or resource access.
+
+### Deployment Notes
+- Deploy changes incrementally and verify functionality through unit tests and integration tests.
+- Consider using AWS CloudFormation or Terraform for infrastructure as code solutions to automate and manage deployments more effectively.
+
+By following these detailed steps, you can ensure that your backend setup for DocuFlow is robust and ready to handle the application's requirements efficiently.
+
+
+
+## Frontend Steps Followed:
 
 npx create-react-app frontend
 
