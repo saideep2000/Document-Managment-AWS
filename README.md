@@ -2,6 +2,11 @@
 
 **DocuFlow** is a state-of-the-art document management application designed to streamline efficiency and collaboration. Leveraging robust technologies like AWS services and React, DocuFlow provides a responsive and secure environment for managing files with ease.
 
+
+## Live Demo
+
+Explore DocuFlow in action: [DocuFlow Live Demo](https://docuflow-file-management.netlify.app/)
+
 ## Features
 
 ### Real-Time Uploads and Notifications
